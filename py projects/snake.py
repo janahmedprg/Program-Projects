@@ -20,7 +20,7 @@ def travel():
 def up():
     snake_head.setheading(90)
 
-def down():bafs
+def down():
     snake_head.setheading(270)
 
 def left():
