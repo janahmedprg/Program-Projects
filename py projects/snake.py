@@ -29,17 +29,17 @@ def move_snake(world:World):
     i=0
     if len(world['position'])>world['score']:
         world['position'].pop()
-    world['position'].append([world['head']['x'],world['head']['y']])
+    world['position'].insert(0,[world['head']['x'],world['head']['y']])
+
     for body in world['body']:
         body['x']=world["position"][i][0]
-        body['y']=world["position"][i][1]+world["snake speed"]
+        body['y']=world["position"][i][1]
         i+=1
 
     if world['direction'] == 0:
         world["head"]["y"] += world["snake speed"]
     elif world['direction'] == 1:
         world["head"]["x"] += world["snake speed"]
-    print(world["position"])
 
 def head_left(world: World):
     world["snake speed"] = -SNAKE_SPEED
