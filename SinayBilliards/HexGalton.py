@@ -183,6 +183,8 @@ timeCap=30000
 etaRange=11
 nXY=15
 nAng=20
+etaStart=0
+etaEnd=1
 ################################################################################
 ################################################################################
 epsilon=0.0001
@@ -238,14 +240,15 @@ epsilon=0.0001
 xyang=getXYAng(r,epsilon,nXY,nAng)
 particles=nXY*nAng
 vS=0
-fname='galton1('+str(round(r,2))+')_time'+str(timeCap)+'_particles'+str(particles)+'_etaRange'+str(etaRange)
+fname='galton('+str(round(r,2))+')_time'+str(timeCap)+'_particles'+str(particles)+'_etaRange'+str(etaStart)+'-'+str(etaEnd)+'_'+str(etaRange)
 (tabX,tabY)=make_ngon(sides)
 tabLineEqs=getLines(tabX,tabY,sides)
-etaVsAve=[[],[]]
+etaVsAve=[[],[],[]]
 
-for ETA in np.linspace(0,0.5,etaRange):
+for ETA in np.linspace(etaStart,etaEnd,etaRange):
     eta = ETA
     sumPosition=0
+    endPoslist = []
     for px,py,startAng in zip(xyang[0],xyang[1],xyang[2]):
         pX=px
         pY=py
@@ -273,7 +276,9 @@ for ETA in np.linspace(0,0.5,etaRange):
         xFrame-=timeReverse*vX
         yFrame-=timeReverse*vY
         sumPosition+=(xFrame**2+yFrame**2)
+        endPoslist.append((xFrame**2+yFrame**2)/timeCap)
 
+    etaVsAve[2].append(np.std(endPoslist))
     average=sumPosition/(timeCap*particles)
     etaVsAve[0].append(eta)
     etaVsAve[1].append(average)
@@ -294,11 +299,11 @@ for ETA in np.linspace(0,0.5,etaRange):
 ################################################################################
 ######################### Ploting Stat Experiment###############################
 ################################################################################
-plt.scatter(etaVsAve[0],etaVsAve[1],color='black',s=1)
+plt.errorbar(etaVsAve[0],etaVsAve[1],yerr=etaVsAve[2], linestyle='None', marker='o',capsize=2,color='black')
 plt.xlabel('Eta')
-plt.ylabel('Average')
+plt.ylabel('Diffs')
+plt.title('Diffusion coeficient as a function of Eta')
 ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
 ############################### Save of Show ###################################
-plt.show()
-plt.axis('off')
-plt.savefig(fname+'.png')
+# plt.show()
+plt.savefig(fname+'.eps')

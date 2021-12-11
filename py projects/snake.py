@@ -18,7 +18,7 @@ def create_the_world() -> World:
     return {
         "food": [],
         "body":[],
-        "head": circle("green", 12.5),
+        "head": rectangle("green",18,18),
         "snake speed": SNAKE_SPEED,
         "direction": 0,
         "position":[],
@@ -99,7 +99,7 @@ def create_food() -> DesignerObject:
     return food
 
 def create_body(world) -> DesignerObject:
-    body = circle("green", 12.5)
+    body = rectangle("green", 18,18)
     body['x'] = world['head']['x']
     body['y'] = world['head']['y']
     return body
