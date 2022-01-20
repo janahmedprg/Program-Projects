@@ -15,6 +15,7 @@ def sin(x):
     return np.sin(x)
 
 def make_ngon(n):
+    # Makes the heaxagonal bounds
     tabX=[1]
     tabY=[0]
     for i in range(1,n+1):
@@ -25,6 +26,7 @@ def make_ngon(n):
     return (tabX,tabY)
 
 def getLines(tabX,tabY,n):
+    # Gets the vertices and vectors of the hexagonal table for plotting
     lineEqs=[]
     for i in range(0,n):
         vX=tabX[i+1]-tabX[i]
@@ -33,6 +35,7 @@ def getLines(tabX,tabY,n):
     return lineEqs
 
 def mat_mul(Rinv,T,R,vX,vY,vS):
+    # Matrix multiplication function
     V=[[vS],[vX],[vY]]
     V= np.matmul(R,V)
     V = np.matmul(T,V)
@@ -40,9 +43,11 @@ def mat_mul(Rinv,T,R,vX,vY,vS):
     return (float(V[1][0]),float(V[2][0]),float(V[0][0]))
 
 def rotate(x):
+    # Creates a rotational matrix
     return np.matrix([[1,0,0],[0,cos(x),sin(x)],[0,-sin(x),cos(x)]],dtype=float)
 
 def reflect(pX,pY,vX,vY,vS):
+    # No-slip reflection on the disperser
     Tr = [[-cos(eta*pi),sin(eta*pi),0],[sin(eta*pi),cos(eta*pi),0],[0,0,-1]]
     if pX==0 and pY>0:
         Rinv=rotate(0)
@@ -70,6 +75,7 @@ def BilliardIte(pX,pY,vX,vY,vS,tabL,wall,r,isTorus,time):
     bestDistance=1000
     D=((2*pY*vY+2*pX*vX)**2-4*(vX**2+vY**2)*(pY**2+pX**2-r**2))
     if D>=0 and isTorus:
+        # This if statement checks the collision with the disperser by solving for time t
         t1=(-2*pY*vY-2*pX*vX+D**0.5)/(2*(vX**2+vY**2))
         t2=(-2*pY*vY-2*pX*vX-D**0.5)/(2*(vX**2+vY**2))
         if t1<0 and t2<0:
@@ -92,13 +98,16 @@ def BilliardIte(pX,pY,vX,vY,vS,tabL,wall,r,isTorus,time):
             return (bestPx,bestPy,vX,vY,vS,False,-1,time,bestxTravel,bestyTravel)
 
     elif(not isTorus):
+        # if we pass in a point on the disperser we call reflect
         vX,vY,vS=reflect(pX,pY,vX,vY,vS)
 
+    # If it misses the disperser and we are not passing in a point on the disperser
+    # we check for collisions with the boundaries.
     for i in range(0,len(tabL)):
         if i==wall:
             continue
         if (tabL[i][2]*vY-tabL[i][3]*vX) == 0:
-            print('WARNING DIVISION BY ZERO LINE 101')
+            print('WARNING DIVISION BY ZERO LINE 113')
             continue
         t=(tabL[i][1]*tabL[i][2]+tabL[i][3]*pX-tabL[i][3]*tabL[i][0]-tabL[i][2]*pY)/(tabL[i][2]*vY-tabL[i][3]*vX)
         if t<0:
@@ -118,6 +127,7 @@ def BilliardIte(pX,pY,vX,vY,vS,tabL,wall,r,isTorus,time):
     return (bestPx,bestPy,vX,vY,vS,True,bestWall,time,bestxTravel,bestyTravel)
 
 def torus(pX,pY,wall):
+    # Makes the torus effect. Instead of reflecting it starts on the opposite side of the hexagonal bounds.
     if(isTorus):
         if(wall==1 or wall==4):
             pY=-pY
@@ -155,7 +165,8 @@ def torus(pX,pY,wall):
     return (pX,pY,wall)
 
 def getXYAng(r,epsilon,n,m):
-    xyPos=[[],[],[]]
+    # Gets initial positions with angles.
+    xyPos=[[],[],[],[]]
     for sang in np.linspace(np.pi+np.pi/6,np.pi/6,n):
         x=r*cos(sang)
         y=r*sin(sang)
@@ -168,6 +179,7 @@ def getXYAng(r,epsilon,n,m):
             xyPos[0].append(x)
             xyPos[1].append(y)
             xyPos[2].append(j)
+            xyPos[3].append(np.random.uniform(-0.9999,0.9999))
     return xyPos
 ################################################################################
 ################################ Interact ######################################
@@ -179,10 +191,10 @@ startY=0
 spin=0
 eta=0
 N=1
-timeCap=30000
+timeCap=100000
 etaRange=11
-nXY=15
-nAng=20
+nXY=40
+nAng=25
 etaStart=0
 etaEnd=1
 ################################################################################
@@ -249,21 +261,21 @@ for ETA in np.linspace(etaStart,etaEnd,etaRange):
     eta = ETA
     sumPosition=0
     endPoslist = []
-    for px,py,startAng in zip(xyang[0],xyang[1],xyang[2]):
+    for px,py,startAng,vs in zip(xyang[0],xyang[1],xyang[2],xyang[3]):
         pX=px
         pY=py
         xFrame=pX
         yFrame=pY
         vX=np.cos(startAng)
         vY=np.sin(startAng)
-        vS=random.uniform(-0.999,0.999)
+        vS=vs
         norm=(vX**2+vY**2+vS**2)**0.5
         vX=vX/norm
         vY=vY/norm
         vS=vS/norm
         trajX=[]
         trajY=[]
-        isTorus=True
+        isTorus=True # Don't change unless we are starting on the disperses
         wall=-1
         time=0
         while time<timeCap:
@@ -306,4 +318,4 @@ plt.title('Diffusion coeficient as a function of Eta')
 ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
 ############################### Save of Show ###################################
 # plt.show()
-plt.savefig(fname+'.eps')
+# plt.savefig(fname+'.eps')
