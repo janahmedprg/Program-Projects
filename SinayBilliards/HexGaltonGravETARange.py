@@ -189,7 +189,7 @@ def torus(pX,pY,wall):
 def getXYAng(r,epsilon,n,m):
     # Gets initial positions with angles.
     xyPos=[[],[],[],[]]
-    for sang in np.linspace(np.pi+np.pi/6,np.pi/6,n):
+    for sang in np.linspace(np.pi,np.pi*2,n):
         x=r*cos(sang)
         y=r*sin(sang)
         if(y<0):
@@ -203,36 +203,28 @@ def getXYAng(r,epsilon,n,m):
             xyPos[2].append(j)
             xyPos[3].append(np.random.uniform(-0.9999,0.9999))
     return xyPos
+
 ################################################################################
 ################################ Interact ######################################
 ################################################################################
-r=(1/1.125)/(0.5/(-0.5**2+1)**0.5)*0.5
-sides=6
-startX=0.81
-startY=0
-startAng=110
-spin=0
-eta=1
-N=20
-timeCap=10000
-etaRange=11
-nXY=15
-nAng=20
-etaStart=0
-etaEnd=1
+r=(1/1.125)/(0.5/(-0.5**2+1)**0.5)*0.5  #radius
+sides=6     #Hexagonal torus
+timeCap=10000  #The amount of time we want to run it for
+nXY=15      #number of positions along the disperser
+nAng=20     #number of initial angles
 gravity = 1
-increment =1000
+Etalist=[0.1,0.2,0.3,0.4,0.6,0.7,0.8,0.9]   #List of etas
 ################################################################################
 ################################################################################
 epsilon=0.0001
-########################## TRAJECTORY MAP ######################################
+############################ Iteration #########################################
 
 particles=nXY*nAng
 (tabX,tabY)=make_ngon(sides)
 tabLineEqs=getLines(tabX,tabY,sides)
 xyang = getXYAng(r,epsilon,nXY,nAng)
 
-for ETA in [0.1,0.2,0.3,0.4,0.6,0.7,0.8,0.9]:
+for ETA in Etalist:
     eta = ETA
     csvName = 'gdata_'+'eta_'+str(eta)+'time_'+str(timeCap)+'_particles'+str(particles)+'_grav'+str(gravity)+'.csv'
     f = open(csvName, 'w', newline='')
@@ -265,18 +257,5 @@ for ETA in [0.1,0.2,0.3,0.4,0.6,0.7,0.8,0.9]:
         yFrame+=timeReverse*vY - 0.5*(timeReverse**2)*gravity
         writer.writerow([xFrame,yFrame,pX,pY,vX,vY,vS,wall,isTorus,time+timeReverse])
 
-    print(timeCap)
+    print(eta)
     f.close()
-
-# print(nXY*nAng,'particles')
-# average = sum/(nXY*nAng)
-# print(average, 'average')
-# print(np.log(average)/np.log(timeCap),'result')
-# st='Eta: '+str(eta)+'\n'+'Gravity: '+str(gravity)+'\n' + 'Time: '+str(timeCap)+'\n'+ 'Particles: '+str(nXY*nAng)+'\n'+ 'Average: '+ str(average)+'\n'+'Result log(E)/log(t): '+str(np.log(average)/np.log(timeCap))
-# plt.text(0,0.2,st, fontsize=12)
-
-############################## Save of Show ###################################
-# plt.show()
-# plt.axis('off')
-# plt.savefig(fname+'.eps',transparent=True)
-# plt.close('all')

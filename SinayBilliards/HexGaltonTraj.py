@@ -3,8 +3,6 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-fig, ax = plt.subplots()
-ax.set_aspect('equal')
 
 pi=np.pi
 
@@ -167,7 +165,7 @@ def torus(pX,pY,wall):
 def getXYAng(r,epsilon,n,m):
     # Gets initial positions with angles.
     xyPos=[[],[],[]]
-    for sang in np.linspace(np.pi+np.pi/6,np.pi/6,n):
+    for sang in np.linspace(np.pi,np.pi*2,n):
         x=r*cos(sang)
         y=r*sin(sang)
         if(y<0):
@@ -189,11 +187,11 @@ startX=0.6
 startY=0
 spin=0
 eta=0
-N=100
+N=10
 timeCap=30000
 etaRange=11
-nXY=1
-nAng=1
+nXY=5
+nAng=3
 etaStart=0
 etaEnd=1
 ################################################################################
